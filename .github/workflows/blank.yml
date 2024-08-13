@@ -1,0 +1,45 @@
+# This workflow tries to build the PR to verify the updated dependencies dont collide.
+name: Build and Auto-Merge Dependencies
+
+on:
+  pull_request:
+    branches:
+      - main  # or your default branch
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'renovate[bot]' }}  # Only run for Renovate PRs
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'  # Replace with your project's Java version
+
+      - name: Install Dependencies
+        run: ./gradlew build --no-daemon
+
+      - name: Run Unit Tests
+        run: ./gradlew test --no-daemon
+
+  auto-merge:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ github.actor == 'renovate[bot]' && success() }}  # Only auto-merge if tests pass
+
+    steps:
+      - name: Auto-merge Renovate PR
+        uses: "pascalgn/automerge-action@v0.14.3"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          mergeMethod: squash
+          commitMessage: "Auto-merged dependency update after successful build"
