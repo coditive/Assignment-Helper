@@ -41,8 +41,9 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
+            const { context, github } = require('@actions/github');
             const prNumber = context.issue.number;
-            await github.issues.addLabels({
+            await github.rest.issues.addLabels({
               ...context.repo,
               issue_number: prNumber,
               labels: ['automerge']
