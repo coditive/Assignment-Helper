@@ -13,8 +13,8 @@ coroutine = "1.9.0-RC"
 retrofit = "2.11.0"
 moshi = "1.15.1"
 room = "2.6.1"
-hilt = "2.40"
-dagger = "2.51"
+hilt = "2.52"
+dagger = "2.52"
 
 [libraries]
 #Activity
